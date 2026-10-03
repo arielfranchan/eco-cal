@@ -1,5 +1,5 @@
 """
-Economic Calendar â€” official published figures, Investing.com-style
+Economic Calendar - official published figures, Investing.com-style
 =====================================================================
 
 Run with:   streamlit run app.py
@@ -8,16 +8,16 @@ One page: a weekly calendar (date, country, event + period, actual, previous,
 change, % change, status) and a "latest figure" table per country.
 
 Sources (all official statistics agencies or central banks, all free):
-  US  FRED (St. Louis Fed)          â€” needs a free FRED API key for dates
-  EU  Eurostat (euro area)          â€” no key
-  UK  Office for National Statisticsâ€” no key
-  JP  Statistics Bureau of Japan, via the DBnomics open-data mirror â€” no key
-  AU  Australian Bureau of Statistics Data API â€” no key
-  SG  Singapore Department of Statistics (SingStat) â€” no key
-  KR  Bank of Korea ECOS â€” works with the public 'sample' key; a free personal
+  US  FRED (St. Louis Fed)          - needs a free FRED API key for dates
+  EU  Eurostat (euro area)          - no key
+  UK  Office for National Statistics- no key
+  JP  Statistics Bureau of Japan, via the DBnomics open-data mirror - no key
+  AU  Australian Bureau of Statistics Data API - no key
+  SG  Singapore Department of Statistics (SingStat) - no key
+  KR  Bank of Korea ECOS - works with the public 'sample' key; a free personal
       key (ECOS_API_KEY) is recommended
-  CA  Statistics Canada â€” no key
-  CN, NZ â€” not covered: see NOT_COVERED below.
+  CA  Statistics Canada - no key
+  CN, NZ - not covered: see NOT_COVERED below.
 
 No consensus forecasts are shown anywhere: only figures the agencies published.
 
@@ -442,7 +442,7 @@ def call_with_retry(fn, *args, tries: int = 3, base_delay: float = 1.0, **kwargs
     for attempt in range(tries):
         try:
             return fn(*args, **kwargs)
-        except Exception as exc:  # noqa: BLE001 â€” we re-raise after retries
+        except Exception as exc:  # noqa: BLE001 - we re-raise after retries
             last_exc = exc
             msg = str(exc).lower()
             if any(tok in msg for tok in NON_RETRYABLE):
@@ -598,7 +598,7 @@ def get_fred_metadata(src: FredSource, res: dict, force_after: float) -> dict:
         tuple(FRED_SIDS), src.key_fp, force_after, _src=src, _res=res))
 
 
-@st.cache_data(show_spinner="Updating FRED seriesâ€¦", max_entries=6)
+@st.cache_data(show_spinner="Updating FRED series\u2026", max_entries=6)
 def _fred_bundle(token_items: tuple, key_fp: str, force_after: float,
                  _src: FredSource, _res: dict) -> dict:
     """Return {sid: {...}} for every series. The cache key is the tuple of
@@ -690,7 +690,7 @@ def _calendar(start_iso: str, end_iso: str, key_fp: str, _src: FredSource) -> pd
     return _src.release_calendar(date.fromisoformat(start_iso), date.fromisoformat(end_iso))
 
 
-@st.cache_data(show_spinner="Checking US release datesâ€¦", max_entries=4)
+@st.cache_data(show_spinner="Checking US release dates\u2026", max_entries=4)
 def _fred_first_release(token_items: tuple, key_fp: str, force_after: float,
                         _src: FredSource, _res: dict) -> dict:
     """First-publication dates for every FRED event series, re-queried only
@@ -900,7 +900,7 @@ DATING = {"ons": "official", "statcan": "official", "eurostat": "approx.", "sing
           "abs": "first seen", "dbnomics": "first seen", "ecos": "first seen"}
 
 
-@st.cache_data(ttl=INTL_TTL, show_spinner="Updating international figuresâ€¦", max_entries=4)
+@st.cache_data(ttl=INTL_TTL, show_spinner="Updating international figures\u2026", max_entries=4)
 def _intl_events(keys: tuple, force_after: float, ecos_fp: str, _ecos_key: str, _res: dict) -> dict:
     store = _res["store"]
     evs = [EVENT[k] for k in keys]
@@ -998,7 +998,7 @@ def infer_freq(s: pd.Series) -> str:
 
 def lagged(s: pd.Series, freq: str, periods: int) -> pd.Series:
     """Value `periods` periods earlier, aligned BY DATE, not by row position.
-    Row-based shift() silently breaks when an observation is missing â€” e.g.
+    Row-based shift() silently breaks when an observation is missing - e.g.
     FRED has no October-2025 CPIAUCSL/UNRATE (BLS did not collect them during
     the federal shutdown), so shift(12) would compare against a 13-month-old
     value for the following year."""
@@ -1092,12 +1092,12 @@ def fmt_event_change(a: float, p: float, ev: Event) -> tuple[str, str]:
     else:
         suffix = {"k": "K", "m": "M", "$bn": "B"}.get(ev.unit, "")
         chg = f"{d:+,.{ev.decimals if ev.unit != '$bn' else 1}f}{suffix}"
-    pct = f"{(a / p - 1) * 100:+.1f}%" if (ev.change == "pct" and p not in (0, 0.0)) else "â€”"
+    pct = f"{(a / p - 1) * 100:+.1f}%" if (ev.change == "pct" and p not in (0, 0.0)) else "\u2014"
     return chg, pct
 
 
 def stars(n: int) -> str:
-    return "â˜…" * n + "â˜†" * (3 - n)
+    return "\u2605" * n + "\u2606" * (3 - n)
 
 
 
@@ -1170,7 +1170,7 @@ def build_week_calendar(events: pd.DataFrame, w_start: date, w_end: date, today:
                 if ev.calc == "on_change" and pd.notna(row["last_obs"]) and row["last_obs"].date() >= day:
                     extra.append({**row.to_dict(), "Date": pd.Timestamp(day), "Status": "Released (no change)",
                                   "Event": f"{ev.name} ({day:%d %b %Y})", "Actual": row["current"],
-                                  "Previous": row["current"], "Change": "+0.00 pp", "% change": "â€”"})
+                                  "Previous": row["current"], "Change": "+0.00 pp", "% change": "\u2014"})
                     continue
                 extra.append({**row.to_dict(), **blank, "Date": pd.Timestamp(day), "Event": ev.name,
                               "Previous": row["Actual"],
@@ -1193,7 +1193,7 @@ def build_week_calendar(events: pd.DataFrame, w_start: date, w_end: date, today:
 # UI
 # =============================================================================
 
-st.set_page_config(page_title="Economic Calendar", page_icon="ðŸ—“ï¸", layout="wide")
+st.set_page_config(page_title="Economic Calendar", page_icon="\U0001f5d3\ufe0f", layout="wide")
 res = get_resources()
 today_et = datetime.now(MARKET_TZ).date()
 
@@ -1253,7 +1253,7 @@ def watcher() -> None:
 st.title("Economic Calendar")
 top_l, top_r = st.columns([3, 1])
 with top_l:
-    st.caption("Official published figures only â€” no forecasts. Previous = prior period as "
+    st.caption("Official published figures only \u2014 no forecasts. Previous = prior period as "
                "currently published (including revisions).")
 with top_r:
     watcher()
@@ -1265,7 +1265,7 @@ with c1:
                                  required=True)
 with c2:
     picked = st.multiselect("Countries", available, default=available,
-                            format_func=lambda c: f"{CODE[c]} Â· {COUNTRIES[c]}")
+                            format_func=lambda c: f"{CODE[c]} \u00b7 {COUNTRIES[c]}")
 with c3:
     min_imp = st.select_slider("Importance", options=[1, 2, 3], value=1, format_func=stars)
 
@@ -1280,7 +1280,7 @@ if src.keyed:
     except Exception as exc:
         st.warning(f"US release schedule unavailable ({scrub(exc, src.key)}).")
 
-st.subheader(f"{w_start:%a %d %b} â€“ {w_end:%a %d %b %Y}")
+st.subheader(f"{w_start:%a %d %b} \u2013 {w_end:%a %d %b %Y}")
 cal = build_week_calendar(events, w_start, w_end, today_et, us_cal, rel_map)
 if not cal.empty:
     cal = cal[cal["country"].isin(picked) & (cal["importance"] >= min_imp)]
@@ -1299,14 +1299,14 @@ if not src.keyed and "US" in picked:
                "values are in the table below.")
 
 st.subheader("Latest figure for each indicator")
-tabs = st.tabs([f"{CODE[c]} Â· {COUNTRIES[c]}" for c in COUNTRIES])
+tabs = st.tabs([f"{CODE[c]} \u00b7 {COUNTRIES[c]}" for c in COUNTRIES])
 for tab, c in zip(tabs, COUNTRIES):
     with tab:
         if c in NOT_COVERED:
             st.info("Not covered. " + NOT_COVERED[c])
             continue
         t = events[(events["country"] == c) & (events["importance"] >= min_imp)].copy()
-        t["Published"] = t["released"].dt.strftime("%a %d %b %Y").fillna("â€”")
+        t["Published"] = t["released"].dt.strftime("%a %d %b %Y").fillna("\u2014")
         t["Next release"] = t["Next release"].map(lambda d: d.strftime("%d %b %Y") if d else "")
         t["Source"] = t["source"].map(SOURCE_NAME)
         show = ["Event", "Imp.", "Published", "Date basis", "Actual", "Previous", "Change", "% change"]
@@ -1353,4 +1353,3 @@ with st.expander("Data source status"):
                                        "released", "Date basis", "source", "Notes"]]
                        .assign(released=events["released"].dt.date).to_csv(index=False).encode(),
                        file_name=f"latest_figures_{today_et:%Y%m%d}.csv", mime="text/csv", on_click="ignore")
-
