@@ -1,0 +1,10 @@
+streamlit>=1.65
+plotly>=6.0
+pandas>=2.2,<4
+numpy>=1.26
+pyarrow>=14
+requests>=2.31
+fredapi>=0.5.2
+wbgapi>=1.0.12
+yfinance>=1.0
+tzdata
